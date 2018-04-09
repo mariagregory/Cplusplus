@@ -14,7 +14,6 @@ struct Player {
     char name[nameSze];
     short played;
     short won;
-    short lost;
 };
 
 #endif /* PLAYER_H */

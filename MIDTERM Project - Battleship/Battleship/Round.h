@@ -14,9 +14,12 @@
 #ifndef ROUND_H
 #define ROUND_H
 
+#include "Player.h"
+
 struct Round {
     short count;
-    char *winner; // will be Player's name
+//    char *winner; // will be Player's name
+    Player *winner;
     short guesses;
 };
 

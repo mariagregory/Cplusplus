@@ -8,7 +8,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-const short nameSze=6;
+const short nameSze=20;
 
 struct Player {
     char name[nameSze];

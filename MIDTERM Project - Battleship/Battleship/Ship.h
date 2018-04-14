@@ -11,7 +11,6 @@
 
 struct Ship {
     short length; // will be 3
-    
     short x,y; // starting coordinate
     bool vert; // if 1 - vertical, if 0 - horizontal 
     bool *hit; // hit[length] - array of true/false (all false initially)

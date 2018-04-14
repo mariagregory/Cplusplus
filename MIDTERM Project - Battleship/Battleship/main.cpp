@@ -25,11 +25,10 @@
 #include "Board.h" // a grid with ships on it
 #include "Ship.h" // a ship itself
 #include "Player.h" 
-//#include "Round.h"
 using namespace std;
 
 // Function prototypes
-void setGame(Board &); // define grid, allocate memory for ships
+void setBrd(Board &); // define grid, allocate memory for ships
 void setCrds(Ship &, short, Board &); // using random numbers, set ship direction (vertical or horizontal) and coordinates
 bool collisn(Ship &, short, Board &); // check if a generated ship location overlaps with any other ships
 void shwGrid(const Board &); // Display the board of the player, with ships marks (hit or miss, unharmed ships hidden)
@@ -38,6 +37,7 @@ pair<short,short> parseGuess(pair<char, char> &); // Adjust a guess to a pair of
 void fire(Board &, pair<short,short> &, bool &); // Check if user hit or missed enemy ships
 bool isHit(Ship &, const pair<short,short> &); // compare user-guessed x,y coordinates with enemy ship locations
 bool isSunk(const Ship &); // Check if all the ship's spots are hit. If yes, mark the ship as sunk
+void mrkSunk(Board *, const Ship &);
 void destroy(Board &); //    release memory allocated for pointers in the Board object: Ship, grid
 void wResult(fstream &, short, char*, short); // Write the game results to a file: round #, winner, # of guesses
 void readHis(fstream &); // Read the game history file. Display info as a table 
@@ -48,14 +48,14 @@ void wave(); // design thing: display a "sea wave"
 int main(int argc, char** argv) {
     srand(static_cast<unsigned int>(time(0)));
 //    Player object, one for each player, will show # of games played and # of them won
+    fstream hisFile("history.dat", ios::out | ios::binary);
+    if(!hisFile) { cout<<"Cannot open the history file..."; return -1; }
+    
     Player *players = new Player[2] { 
         { "John", 0,0 }, { "Mary", 0,0 }
     };
     short round = 0;
     char again;
-    
-    fstream hisFile("history.dat", ios::out | ios::binary);
-    if(!hisFile) { cout<<"Cannot open the history file..."; return -1; }
     
     cout<<" ~ ~ ~ Welcome to ~ ~ * * * S E A ~ ~ B A T T L E * * * ~ ~ ~\n\n";
     for(short i=0; i<2; i++) {
@@ -76,7 +76,8 @@ int main(int argc, char** argv) {
         cout<<"\n\nROUND "<<round<<"!\n";
         Board board[2]; // one for each player
         // define grid, allocate memory for ships
-        for(short i=0; i<2; i++) setGame(board[i]); 
+        for(short i=0; i<2; i++) setBrd(board[i]); 
+        cout<<board[0].numShps<<" ships "<<board[0].ships[0].length<<" cells each are created for each player.\n";
         pair<short,short> guess; // an x,y coordinate on a grid, where ships are located
         short guesses[2] {0}; // # of guesses players madewave(); // display a "wave"
         bool won = false; // whether there is a winner; if true, then the game is over
@@ -107,8 +108,9 @@ int main(int argc, char** argv) {
         wResult(hisFile, round, players[myTurn].name, guesses[myTurn]);
 //         release memory for Board objects       
         for(short i=0; i<2; i++) destroy(board[i]);
-        cout<<"\nDo you want to play again?\nYes (Y) or No (any other key): ";
-        cin.get(again); cin.ignore(100, '\n'); // so the remaining char(s) are not stored as a guess if the game continues
+        do { cout<<"\nDo you want to play again?\nYes (Y) or No (any other key): ";
+            cin.get(again); cin.ignore(100, '\n'); // so the remaining char(s) are not stored as a guess if the game continues
+        }while(isspace(again) && again=='\n'); // skip accidental white spaces and newlines
         again = toupper(again);
     }while(again=='Y');
     
@@ -121,8 +123,8 @@ int main(int argc, char** argv) {
     return 0;
 }
 // specify board dimensions, # and size of ships, allocate memory for ships and set ship parameters
-void setGame(Board &board) {
-    short boardSz = 7, shipSz = 3, nuShips = 3;
+void setBrd(Board &board) {
+    short boardSz = 7, shipSz = 3, nuShips = 5;
     board.size = boardSz; // will be boardSz*boardSz squared grid
     board.numShps = nuShips;
     board.numSunk = 0; // initially, no ships are sunk
@@ -149,27 +151,25 @@ void setCrds(Ship &ship, short index, Board &board) {
     if(ship.vert) {
         if( (ship.y+ship.length) > board.size) {
             ship.y = board.size - ship.length;
-        } // if the generated location collides with another ship, call the function recursively
-        if(index && collisn(ship,index,board)) setCrds(ship, index, board);
-//        else{ for(short y=ship.y; y<ship.y+ship.length; y++) board.grid[y][ship.x]='1'+index; }
-       
+        } // if the generated location collides with another ship, call the function recursively       
     } else {
         if( (ship.x+ship.length) > board.size) {
             ship.x = board.size - ship.length;
         }
 // if the generated location collides with another ship, call the function recursively
-        if(index && collisn(ship,index,board)) setCrds(ship, index, board);
-//        else{ for(short x=ship.x; x<ship.x+ship.length; x++) board.grid[ship.y][x]='1'+index; }
-    }
+    } if(index && collisn(ship,index,board)) setCrds(ship, index, board);
+//    ************* TEST for ship allocations **********
+//  	if(ship.vert) { for(short y=ship.y; y<ship.y+ship.length; y++) board.grid[y][ship.x]='1'+index;}
+//		else { for(short x=ship.x; x<ship.x+ship.length; x++) board.grid[ship.y][x]='1'+index; }
 }
 //check if a generated ship location overlaps with any existing ships
 bool collisn(Ship &ship, short index, Board &board) {
-    if(ship.vert) { // in a vertical orientation, keep x constant and check all y values
+    if(ship.vert) { // in a vertical orientation, ship.x is constant
         for(short i=0; i<index; i++) {
             if(board.ships[i].vert) { // compare vertical to horizontal vertical
                 if(ship.x==board.ships[i].x) {
                     for(short y=board.ships[i].y; y<board.ships[i].y+board.ships[i].length; y++) {
-                        if(y>=ship.y && y<=ship.y+ship.length-1) {
+                        if(y>=ship.y && y<ship.y+ship.length) {
 //                            cout<<"\tCollision with ship "<<i+1<<" on "<<ship.x<<y<<"!";
                             return true;
                         }
@@ -177,7 +177,7 @@ bool collisn(Ship &ship, short index, Board &board) {
                 }    
             } else { // if compare vertical ship to horizontal
                 for(short y=ship.y; y<ship.y+ship.length; y++) {
-                     if(y==board.ships[i].y) {
+                     if(y==board.ships[i].y) { // board.ships[i].y is constant for a horizontal ship
                          for(short x=board.ships[i].x; x<board.ships[i].x+board.ships[i].length; x++) {
                              if(ship.x==x) {
 //                                 cout<<"\tCollision with ship "<<i+1<<" on "<<x<<y<<"!";
@@ -188,11 +188,11 @@ bool collisn(Ship &ship, short index, Board &board) {
                 }
             }
         }
-    } else { // if an argument ship is horizontal
+    } else { // if an argument ship is horizontal, so ship.y is constant
         for(short i=0; i<index; i++) {
-            if(board.ships[i].vert) { // compare horizontal with vertical
+            if(board.ships[i].vert) { // compare horizontal with vertical; in vertical, ship.x is constant
                 for(short y=board.ships[i].y; y<board.ships[i].y+board.ships[i].length; y++) {
-                    if(ship.y==y) {
+                    if(ship.y==y) { // if y-coordinate coincides at some point
                         for(short x=ship.x; x<ship.x+ship.length; x++) {
                             if(x==board.ships[i].x) {
 //                                cout<<"\tCollision with ship "<<i+1<<" on "<<x<<y<<"!";
@@ -201,10 +201,11 @@ bool collisn(Ship &ship, short index, Board &board) {
                         }
                     }
                 }
-            }else{// compare horizontal with horizontal; both have const y, but
+            }else{// compare horizontal with horizontal; both have const y
                 if(ship.y==board.ships[i].y) {
+                	// check if x-coordinates coincide at some point
                     for(short x=ship.x; x<ship.x+ship.length; x++) {
-                        if(ship.x>=board.ships[i].x && ship.x<=board.ships[i].x+board.ships[i].length-1) {
+                        if( x >= board.ships[i].x && x < board.ships[i].x+board.ships[i].length) {
 //                            cout<<"\tCollision with ship "<<i+1<<" on "<<x<<ship.y<<"!";
                             return true;
                         }
@@ -254,7 +255,7 @@ pair<short,short> takeGuess(const Board &board) {
             test[0]=toupper(test[0]);
             if(!isalpha(test[0]) || test[0]<'A' || test[0]>('A'+board.size-1)) {
                 cout<<"\tError!\n"; continue;
-            } else if(!isdigit(test[1]) || test[1]<0 || test[1]>('0'+board.size-1)) {
+            } else if(!isdigit(test[1]) || test[1]<'0' || test[1]>('0'+board.size-1)) {
                 cout<<"\tError!\n"; continue;
             }
         } valid=true;
@@ -276,23 +277,28 @@ pair<short,short> parseGuess(pair<char,char> &guess) {
 // Check if all ships are sunk. If yes, set "won" flag to true.
 void fire(Board &board, pair<short,short> &guess, bool &won) {
     cout<<"\tFire!"<<endl;
-    while(board.grid[guess.second][guess.first]=='X' || board.grid[guess.second][guess.first]=='-') {
-        cout<<"\tYou already fired at this spot.\n\ta1Try another shot.\n";
+    while(board.grid[guess.second][guess.first]=='X' || board.grid[guess.second][guess.first]=='-' 
+            || board.grid[guess.second][guess.first]=='S') {
+        cout<<"\tYou already fired at this spot.\n\tTry another shot.\n";
         guess=takeGuess(board);
     }
 //  board coordinates are [y][x] as row - vertical, col - horizontal
     for(short i=0; i<board.numShps; i++) {
         if(isHit(board.ships[i], guess)) { // mark on a grid, and also on a ship - set hit[] element to true
-          board.grid[guess.second][guess.first]='X'; shwGrid(board);
+          board.grid[guess.second][guess.first]='X';
           if(isSunk(board.ships[i])) { // Then check if the newly hit ship is gone
-              board.numSunk++;
+              mrkSunk(&board, board.ships[i]); // mark the whole ship as sunk
+              board.numSunk++; shwGrid(board);
               cout<<"\tThe ship is sunk!\n";
               if(board.numSunk==board.numShps) { //  Then check if ALL ships are sunk
                   cout<<"\tAll ships are sunk, so ----- GAME OVER!\n";
                   won=true;
                   return;
               }
-          } else cout<<"\tThe ship is hit!\n"; // if not sunk, then at least hit
+          } else {
+              shwGrid(board);
+              cout<<"\tThe ship is hit!\n"; // if not sunk, then at least hit
+          }
           return;
         }
     }
@@ -302,7 +308,6 @@ void fire(Board &board, pair<short,short> &guess, bool &won) {
 }
 // compares user-specified x,y coordinates with any of the enemy ships locations
 bool isHit(Ship &ship, const pair<short,short> &guess) {
-    bool ishit=false;
     if(ship.vert && guess.first==ship.x) { // in vertically placed ships, x-coordinate is constant
         if(guess.second>=ship.y && guess.second<=ship.y+ship.length-1) {
             ship.hit[guess.second-ship.y] = true; // mark as hit on a ship
@@ -319,6 +324,16 @@ bool isHit(Ship &ship, const pair<short,short> &guess) {
 bool isSunk(const Ship &ship) {
     for(short i=0; i<ship.length; i++) { if(!ship.hit[i]) return false; }
     return true;
+}
+void mrkSunk(Board *board, const Ship &ship) {
+    board->grid[ship.y][ship.x]='S';
+    for(short i=1; i<ship.length; i++) {
+        if(ship.vert) {
+            board->grid[ship.y+i][ship.x]='S';
+        } else {
+            board->grid[ship.y][ship.x+i]='S';
+        }
+    }
 }
 //    release memory allocated for pointers in the Board object 
 void destroy(Board &board) {
@@ -352,12 +367,11 @@ void readHis(fstream &file){
         if(file) {
             cout<<" "<<setw(3)<<right<<round<<setw(3)<<" ";
             file.read(reinterpret_cast<char*>(name), sizeof(name));
-            cout<<"| "<<setw(nameSze/2)<<left<<name;
+            cout<<"| "<<setw(10)<<left<<name;
             file.read(reinterpret_cast<char*>(&guesses), sizeof(guesses));
             cout<<"| "<<setw(4)<<right<<guesses<<endl;
-    //        if(!file) break; // otherwise, 
         }
-    }while(file);// reads the last portion 2 times 
+    }while(file);
     cout<<"____________________________"<<endl;
     delete [] name;
     file.close();
@@ -384,7 +398,7 @@ void setProf(Player *players, short size) {
 //    Reading players profiles
     for(short i=0; i<size; i++) {
         profile.read(reinterpret_cast<char*>(&newPlrs[i]), sizeof(newPlrs[i]));
-        cout<<" "<<setw(nameSze/2)<<left<<newPlrs[i].name;
+        cout<<" "<<left<<setw(nameSze/2)<<newPlrs[i].name;
         cout<<"| "<<right<<setw(6)<<newPlrs[i].played<<setw(7)<<"";
         cout<<"| "<<setw(5)<<newPlrs[i].won<<setw(5)<<"";
         cout<<"| "<<setw(7);

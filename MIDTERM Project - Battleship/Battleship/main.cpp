@@ -51,18 +51,17 @@ int main(int argc, char** argv) {
     fstream hisFile("history.dat", ios::out | ios::binary);
     if(!hisFile) { cout<<"Cannot open the history file..."; return -1; }
     
-    Player *players = new Player[2] { 
-        { "John", 0,0 }, { "Mary", 0,0 }
-    };
+    Player *players = new Player[2] { { "John", 0,0 }, { "Mary", 0,0 } };
     short round = 0;
     char again;
     
     cout<<" ~ ~ ~ Welcome to ~ ~ * * * S E A ~ ~ B A T T L E * * * ~ ~ ~\n\n";
     for(short i=0; i<2; i++) {
-        char input[nameSze];
+        char input[nameSze]; // +1 for null terminator
         cout<<"Player "<<i+1<<" name: ";
-        cin.getline(input, nameSze-1); 
-        if(!strlen(input)) cout<<"It\'s OK, we\'ll call you "<<players[i].name<<".\n";
+        cin.getline(input, nameSze-1, '\n');
+//        cin.getline(input, nameSze); strcat(input, "\0");
+		if(!strlen(input)) cout<<"It\'s OK, we\'ll call you "<<players[i].name<<".\n";
         else {
             strcpy(players[i].name, input);
             cout<<"Nice to meet you "<<players[i].name<<"!\n";
@@ -75,11 +74,11 @@ int main(int argc, char** argv) {
         players[0].played++; players[1].played++; // increment # of rounds player by each player
         cout<<"\n\nROUND "<<round<<"!\n";
         Board board[2]; // one for each player
-        // define grid, allocate memory for ships
-        for(short i=0; i<2; i++) setBrd(board[i]); 
-        cout<<board[0].numShps<<" ships "<<board[0].ships[0].length<<" cells each are created for each player.\n";
+        for(short i=0; i<2; i++) setBrd(board[i]);    // define grid, allocate memory for ships
+        cout<<"Each player has a board with "<<board[0].numShps<<" ships.\n\tHalf ships occupy "<<board[0].ships[0].length<<" cells,\n";
+		cout<<"\tthe others occupy "<<board[0].ships[1].length<<" cells.\n\nGood luck!\n";
         pair<short,short> guess; // an x,y coordinate on a grid, where ships are located
-        short guesses[2] {0}; // # of guesses players madewave(); // display a "wave"
+        short guesses[2] {0}; // # of guesses players made
         bool won = false; // whether there is a winner; if true, then the game is over
         bool myTurn = false; // 0 - false, 1st player's turn; 1 - true - 2nd player's turn 
         
@@ -108,9 +107,8 @@ int main(int argc, char** argv) {
         wResult(hisFile, round, players[myTurn].name, guesses[myTurn]);
 //         release memory for Board objects       
         for(short i=0; i<2; i++) destroy(board[i]);
-        do { cout<<"\nDo you want to play again?\nYes (Y) or No (any other key): ";
-            cin.get(again); cin.ignore(100, '\n'); // so the remaining char(s) are not stored as a guess if the game continues
-        }while(isspace(again) && again=='\n'); // skip accidental white spaces and newlines
+        cout<<"\nDo you want to play again?\nYes (Y) or No (any other key): ";
+        cin>>again; cin.ignore(100, '\n'); // so the remaining char(s) are not stored as a guess if the game continues
         again = toupper(again);
     }while(again=='Y');
     
@@ -124,7 +122,7 @@ int main(int argc, char** argv) {
 }
 // specify board dimensions, # and size of ships, allocate memory for ships and set ship parameters
 void setBrd(Board &board) {
-    short boardSz = 7, shipSz = 3, nuShips = 5;
+    short boardSz = 7, shipSz = 3, nuShips = 4;
     board.size = boardSz; // will be boardSz*boardSz squared grid
     board.numShps = nuShips;
     board.numSunk = 0; // initially, no ships are sunk
@@ -132,10 +130,10 @@ void setBrd(Board &board) {
     board.grid = new char*[boardSz]; //    allocate memory for grid
     for(short i=0; i<boardSz; i++) {
         board.grid[i] = new char[boardSz]; // will contain marks for ships, hit or miss
-        for(short j=0; j<boardSz; j++) board.grid[i][j]=' '; // When hit or miss, spaces will be replaced with 'X' or '-'
+        for(short j=0; j<boardSz; j++) *(*(board.grid+i)+j)=' '; // When hit or miss, spaces will be replaced with 'X' or '-'
     }
     for(short i=0; i<nuShips; i++) {
-        board.ships[i].length = shipSz; // how many cells ship occupies
+        board.ships[i].length = i%2 ? shipSz : shipSz-1; // how many cells ship occupies: 3 or 2
         board.ships[i].hit = new bool[shipSz]{false}; // when hit, the ship 'cell' becomes true 
         board.ships[i].sunk = false; // when all ship spots are hit, becomes true
         board.ships[i].vert = rand()%2 ? false : true; // Direction: 1 - vertical, 0 - horizontal
@@ -167,9 +165,9 @@ bool collisn(Ship &ship, short index, Board &board) {
     if(ship.vert) { // in a vertical orientation, ship.x is constant
         for(short i=0; i<index; i++) {
             if(board.ships[i].vert) { // compare vertical to horizontal vertical
-                if(ship.x==board.ships[i].x) {
+                if(ship.x>=board.ships[i].x-1 && ship.x<=board.ships[i].x+1) {
                     for(short y=board.ships[i].y; y<board.ships[i].y+board.ships[i].length; y++) {
-                        if(y>=ship.y && y<ship.y+ship.length) {
+                        if(y>=ship.y-1 && y<=ship.y+ship.length+1) {
 //                            cout<<"\tCollision with ship "<<i+1<<" on "<<ship.x<<y<<"!";
                             return true;
                         }
@@ -177,9 +175,9 @@ bool collisn(Ship &ship, short index, Board &board) {
                 }    
             } else { // if compare vertical ship to horizontal
                 for(short y=ship.y; y<ship.y+ship.length; y++) {
-                     if(y==board.ships[i].y) { // board.ships[i].y is constant for a horizontal ship
+                     if(y>=board.ships[i].y-1 && y<=board.ships[i].y+1) { // board.ships[i].y is constant for a horizontal ship
                          for(short x=board.ships[i].x; x<board.ships[i].x+board.ships[i].length; x++) {
-                             if(ship.x==x) {
+                             if(ship.x>=x-1 && ship.x<=x+1) {
 //                                 cout<<"\tCollision with ship "<<i+1<<" on "<<x<<y<<"!";
                                  return true;
                              }
@@ -192,9 +190,9 @@ bool collisn(Ship &ship, short index, Board &board) {
         for(short i=0; i<index; i++) {
             if(board.ships[i].vert) { // compare horizontal with vertical; in vertical, ship.x is constant
                 for(short y=board.ships[i].y; y<board.ships[i].y+board.ships[i].length; y++) {
-                    if(ship.y==y) { // if y-coordinate coincides at some point
+                    if(ship.y<=y+1 && ship.y>=y-1) { // if y-coordinate coincides at some point
                         for(short x=ship.x; x<ship.x+ship.length; x++) {
-                            if(x==board.ships[i].x) {
+                            if(x<=board.ships[i].x+1 && x>=board.ships[i].x-1) {
 //                                cout<<"\tCollision with ship "<<i+1<<" on "<<x<<y<<"!";
                                 return true;
                             }
@@ -202,10 +200,10 @@ bool collisn(Ship &ship, short index, Board &board) {
                     }
                 }
             }else{// compare horizontal with horizontal; both have const y
-                if(ship.y==board.ships[i].y) {
+                if(ship.y>=board.ships[i].y-1 && ship.y<=board.ships[i].y+1) {
                 	// check if x-coordinates coincide at some point
                     for(short x=ship.x; x<ship.x+ship.length; x++) {
-                        if( x >= board.ships[i].x && x < board.ships[i].x+board.ships[i].length) {
+                        if( x >= board.ships[i].x-1 && x <= board.ships[i].x+board.ships[i].length+1) {
 //                            cout<<"\tCollision with ship "<<i+1<<" on "<<x<<ship.y<<"!";
                             return true;
                         }
@@ -339,14 +337,15 @@ void mrkSunk(Board *board, const Ship &ship) {
 void destroy(Board &board) {
     for(short i=0; i<board.size; i++) {
         delete [] board.grid[i];
-    } delete [] board.grid; board.grid=nullptr;
+    } delete [] board.grid; board.grid=NULL;
 
     for(short i=0; i<board.numShps; i++) {
         delete [] board.ships[i].hit;
-    } delete [] board.ships; board.ships=nullptr;
+    } delete [] board.ships; board.ships=NULL;
 }
 // Write the game results to a file
 void wResult(fstream &file, short round, char *name, short guesses) {
+    strcat(name,"\0"); // so the whole literal name value is stored in *name
     file.write(reinterpret_cast<char*>(&round), sizeof(round));
     file.write(reinterpret_cast<char*>(name), sizeof(name));
     file.write(reinterpret_cast<char*>(&guesses), sizeof(guesses));
@@ -357,7 +356,7 @@ void readHis(fstream &file){
     if(!file) { cout<<"Cannot open the file\n"; return; }
     
     short round, guesses;
-    char *name = new char[nameSze]; //nameSze is declared in Player.h
+    char *name = new char[nameSze+1]; //nameSze is declared in Player.h; +1 for '\0'
     cout<<"\n  GAME HISTORY"<<endl;
     cout<<"____________________________"<<endl;
     cout<<" Round |   Winner  | Guesses "<<endl;
@@ -386,7 +385,7 @@ void setProf(Player *players, short size) {
     profile.close();
     
     Player *newPlrs = new Player[2]; // allocate new portion of memory for 2 new instances of Player
-    char *name = new char[nameSze]; // allocate new pointer to set the size of c-string to read
+//    char *name = new char[nameSze+1]; // allocate new pointer to set the size of c-string to read
 //    Reopen the file, but this time in reading mode
     profile.open("profile.dat", ios::in | ios::binary);
     if(!profile) { cout<<"Cannot read the profiles..."; return; }
@@ -407,8 +406,8 @@ void setProf(Player *players, short size) {
         } else {cout<<"--\n"; } // in case the function is called before any game is played...
     } cout<<"_____________________________________________________"<<endl;
     profile.close();
-    delete [] newPlrs; newPlrs = nullptr; // release memory for 2 new Player instances
-    delete [] name; // .... and a local dynamically created c-string
+    delete [] newPlrs; newPlrs = NULL; // release memory for 2 new Player instances
+//    delete [] name; // .... and a local dynamically created c-string
 }
 // show something looking like a sea wave
 void wave() {

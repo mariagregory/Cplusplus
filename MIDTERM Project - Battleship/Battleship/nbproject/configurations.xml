@@ -6,7 +6,6 @@
                    projectFiles="true">
       <itemPath>Board.h</itemPath>
       <itemPath>Player.h</itemPath>
-      <itemPath>Round.h</itemPath>
       <itemPath>Ship.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -44,8 +43,6 @@
       </item>
       <item path="Player.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="Round.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="Ship.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
@@ -74,8 +71,6 @@
       <item path="Board.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Player.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Round.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Ship.h" ex="false" tool="3" flavor2="0">
       </item>

@@ -1,0 +1,43 @@
+14.6 Personnel Report
+Pseudocode
+by Maria Gregory
+CSC-17A 42747
+
+function main
+	Set random number generator
+    
+    Declare TimeOff workers[5]
+	Initialize each instance with ID, name, and # of months worked:
+		name - a literal string (assigned to char*)
+		ID - 7 digits
+		months worked - randomly generated number:
+			worker 1 - rand()%13 - worked <=1 year,
+			worker 2 - rand()%13+12 - worked >1 but <=2 years,
+			and so on
+    For each worker, 
+		set # of used vacation days
+			rand()%(20 * <# years worked>) - assuming a worker takes up to 20 vacation days a year
+		set # of used sick leave days
+			rand()%(15 * <# years worked>) - assuming a worker gets sick for up to 15 days a year
+    call print(workers, 5) - to display data on workers in a table
+    Change # months worked by worker[0]
+    call print(workers, 5) - to display the table again and see changes on 1st worker
+
+Function void print(workers [], size)  -  to display info on each worker's time off
+    Display a table header:
+		"Name", "ID", "Months", "Vacation Days: Earned | Used | Paid | Unpaid ", and "Sick Leave Days: Earned | Used | Paid | Unpaid"
+	For each worker, determine # paid and unpaid vacation and sick leave days:
+		short vacErnd, vacUsed, vacPaid, vacUnpd, sckErnd, sckUsed, sckPaid, sckUnpd
+		vacErnd = <worker>.getMaxVac().<days>
+		vacUsed = <worker>.getVac().<days>
+		if vacErnd >= vacUsed, then vacPaid = vacUsed and vacUnpd=0,
+			else vacPaid = vacErnd and vacUnpd = vacUsed-vacErnd
+		sckErnd = <worker>.getMaxSick().<days>;
+		sckUsed = <worker>.getSick().<days>;
+		if sckErnd >= sckUsed, then sckPaid=sckUsed and sckUnpd = 0,
+			else sckPaid=sckErnd and sckUnpd = sckUsed-sckErnd
+    For each worker, display data in the table:
+		<worker>.<name>, <worker>.<id>, <worker>.<months>, 
+		<worker>.<vacErnd>, <worker>.<vacUsed>, <worker>.<vacPaid>, <worker>.<vacUnpd>,
+		<worker>.<sckErnd>, <worker>.<sckUsed>, <worker>.<sckPaid>, <worker>.<sckUnpd>
+		

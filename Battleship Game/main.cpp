@@ -25,6 +25,7 @@
 #include "Player.h" /*! a player */
 #include "Board.h" /*! a grid with ships on it*/
 #include "Ship.h" /*! a ship itself*/
+#include "Streams.h"
 using namespace std;
 
 /*! Function prototypes */
@@ -47,10 +48,11 @@ int main(int argc, char** argv) {
     Player **players = new Player*[2]; //array of 2 pointers to Player
     for(short i=0; i<2; i++) {
        string name = takeName(i);
-       try {
+       try { //  cout<<"Player "<<i+1<<endl;
            players[i] = new Player(name.c_str());
        /// When players are created, their boards are set and ships are allocated
-       }catch(Ship::NegLen) {
+       }
+       catch(Ship::NegLen) {
             cout << "Error: Cannot create a ship with <=0 length.\n";
             return -1;
         }
@@ -63,9 +65,10 @@ int main(int argc, char** argv) {
     char again;
     
     do { /*! repeat for each round*/
-        round = new Round(++rndN);// ++Nround;
-        players[0]->addNpld(); players[1]->addNpld(); /*! increment # of rounds player by each player*/
-        cout<<"\n\nROUND "<<round->getNum()<<"!\n";
+        round = new Round;// ++Nround;
+        players[0]->addNpld(); 
+        players[1]->addNpld(); /*! increment # of rounds player by each player*/
+        cout<<"\nRound "<<round->getNum()<<"!\n";
         cout<<players[0]->NShips()<<" ships are created for each player.\n";
         pair<short,short> guess; /*! an x,y coordinate on a grid, where ships are located*/
         bool gamOver = false; /*! whether there is a winner; if true, then the game is over*/
@@ -73,7 +76,11 @@ int main(int argc, char** argv) {
         do { /*! for each user guess*/
             wave();
             cout<<"Press Enter to ";
-            if( !(players[0]->getNGss()) && !turn ) cout<<"start a game.\n"; else cout<<"continue.\n";
+            if( !(players[0]->getNGss()) && !turn ) {
+                cout<<"start a game.\n"; 
+            } 
+            else cout<<"continue.\n";
+            
             cin.get(); /*! pause until user presses Enter    
             /*! announce a player's turn and show the enemy's board*/
             cout<<players[turn]->getName()<<"\'s turn:\n";
@@ -82,24 +89,33 @@ int main(int argc, char** argv) {
             players[!turn]->showBrd(); 
             cout<<"\n\t~~~~ Fire! ~~~~ "<<endl;
             gamOver = players[turn]->fire(*(players[!turn]), guess); /*!check if coordinates match any of enemy ships.  */ 
-            if(!gamOver) turn = !turn; /// switch turns
+            if(!gamOver)
+                turn = !turn; /// switch turns
         } while(!gamOver);
+        
         round->setWnnr(players[turn]);
         round->setNgss(players[turn]->getNGss());
         cout<<endl<<"And the WINNER is "<<round->getWnnr()<<endl;
         cout<<"\t"<<round->getWnnr()<<" beat "<<players[!turn]->getName();
         cout<<" in the round "<<round->getNum()<<" with "<<round->getNgss()<<" guesses"<<endl;
         /*!  write data to a binary file*/
-        try { almanac << *round; }
+        try { 
+            almanac << *round; 
+        }
         catch(Profile::NoFile) { 
-            cout<<"The output file cannot be opened.\n"; return 1; 
+            cout<<"The output file cannot be opened.\n"; 
+            return 1; 
         }
         delete round;
+        
         cout<<"\nDo you want to play again?\nYes (Y) or No (any other key): ";
         do { cin.get(again); }while(isspace(again)); /// skip accidental spaces until some char is entered
-        cin.ignore(100, '\n'); /*! skip the remaining char(s), if any, so nothing is left in a buffer if the game continues*/
+//        cin.ignore(); /*! skip the remaining char(s), if any, so nothing is left in a buffer if the game continues*/
         again = toupper(again);
-        if(again=='Y') { players[0]->reset(); players[1]->reset(); }
+        if(again=='Y') { 
+            players[0]->reset(); 
+            players[1]->reset(); 
+        }
     }while(again=='Y');
     
     almanac.close();
@@ -124,10 +140,14 @@ int main(int argc, char** argv) {
         /// So I had to open it for output only, then close, and then reopen for input only
         readProf(profiles);
         profiles.close();
-    } catch(Profile::NoFile err) {
-        cout<<err.str();    return -1;
-    } catch(Profile::DivZero err) {
-        cout<<err.str()<<endl;  return -1;
+    } 
+    catch(Profile::NoFile err) {
+        cout<<err.str();
+        return -1;
+    } 
+    catch(Profile::DivZero err) {
+        cout<<err.str()<<endl;
+        return -1;
     }
     delete [] players;
     cout<<"\n\nThat\'s it,\nBye.\n";
@@ -141,7 +161,8 @@ pair<short,short> takeGuess(short size) {//, Player &p1, Player &p2) {
     string test;
     bool valid = false;
     while(!valid) {
-        cout<<"\tType a coordinate from A0 to "<<static_cast<char>('A'+size-1)<<size-1<<": ";
+        cout<<"\tType a coordinate from A0 to ";
+        cout<<static_cast<char>('A'+size-1)<<size-1<<": ";
         getline(cin,test);
         // ************** TESTS
         //if(test=="x") p1.reset();
@@ -150,14 +171,19 @@ pair<short,short> takeGuess(short size) {//, Player &p1, Player &p2) {
         if(test.length()!=2) {
             cout<<"\tError! No 2 chars were entered\n";
             continue;
-        } else {
+        } 
+        else {
             test[0]=toupper(test[0]);
             if(!isalpha(test[0]) || test[0]<'A' || test[0]>('A'+size-1)) {
-                cout<<"\tError!\n"; continue;
-            } else if(!isdigit(test[1]) || test[1]<'0' || test[1]>('0'+size-1)) {
-                cout<<"\tError!\n"; continue;
+                cout<<"\tError!\n"; 
+                continue;
+            } 
+            else if(!isdigit(test[1]) || test[1]<'0' || test[1]>('0'+size-1)) {
+                cout<<"\tError!\n"; 
+                continue;
             }
-        } valid=true;
+        } 
+        valid=true;
     }
     guess.first=test[0]; /*! a letter, x-coordinate = col #*/
     guess.second=test[1]; /*! a digit, y-coordinate = row #*/
@@ -181,10 +207,10 @@ void readProf(fstream &file) {
     Profile prof;
     float rate; 
     ///*!    A table header*/
-	cout<<"\n PLAYERS INFO"<<endl;
+    cout<<"\n PLAYERS INFO"<<endl;
     cout<<"________________________________________________"<<endl;
     cout<<" "<<left<<setw(20)<<"Name";
-	cout<<"| Games Won | Success Rate"<<endl;   
+    cout<<"| Games Won | Success Rate"<<endl;   
     cout<<"________________________________________________"<<endl;
     /*!    Reading players profiles*/  
     for(short i=0; i<2; i++) {
@@ -197,8 +223,11 @@ void readProf(fstream &file) {
         /*! calculate % of success as games won/played*/
         if(prof.played()) { /*! in case the function is called before any game is played...*/
             cout<<fixed<<setprecision(0)<<prof.getRate()<<"%"<<endl;
-        } else cout<<"--\n";  
-    } cout<<"________________________________________________"<<endl;
+        } 
+        else 
+            cout<<"--\n";  
+    } 
+    cout<<"________________________________________________"<<endl;
     cout<<"Total games played: "<<prof.played()<<endl;
 } /// When only 1 round was played, the rate is not calculated, for some reason
 
@@ -211,9 +240,11 @@ string takeName(short i) {
     if(!(input.length())) { 
        input = i ? "Mary" : "John"; 
        cout<<"It\'s OK, we\'ll call you " <<input;
-    } else {
+    } 
+    else {
        cout<<"Nice to meet you "<<input;
-    } cout<<endl;
+    } 
+    cout<<endl;
     return input;
 }
 

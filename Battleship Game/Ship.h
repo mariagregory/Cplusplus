@@ -34,4 +34,5 @@ class Ship { /// Class representing a single ship
         bool isSunk() const;
         ~Ship();
 };
+
 #endif /* SHIP_H */

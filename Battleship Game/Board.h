@@ -10,9 +10,6 @@
 #define BOARD_H
 
 #include "Ship.h"
-//#include <utility> // pair
-//#include <iostream> // *********FOR TEST
-//#include <cctype> // isspace()
 using namespace std;
 
 class Ship; // forward Ship class declaration

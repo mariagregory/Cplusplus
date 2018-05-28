@@ -18,11 +18,9 @@ class Player;/// Forward Player and Profile class declarations
 class Profile;
 
 /// Stream operator overloading function prototypes
-//friend ostream &operator<< (ostream&, Profile&);
 fstream &operator<<(fstream&, Player&);
-//fstream &operator>>(fstream&, Profile&);
 
-/// Global constant nameSz
+/// Global constant for a name size
 const short nameSz = 20; /// Player name size. Used in main.cpp also
 
 class Profile {
@@ -32,42 +30,49 @@ class Profile {
         short Nwon; // updates before fire() returns "true"
         float rate;
     public:
-    Profile(); /// Default constructor
-    Profile(const char *); /// Constructor accepting a name as an argument
-    Profile(Player &); /// copy constructor
-    void operator=(Player &); /// overloaded assignment operator
-    void setName(const char *);/// set player's name
-    void addNpld() { ++Nplayed; }
-    short played() const { return Nplayed; }/// access # of games played
-    short won() const { return Nwon; } /// access # of games won
-    float getRate() { /// calculate and access % of success
-        if(Nplayed>0) { rate = 100.0*Nwon/Nplayed; return rate; }
-        else throw DivZero(Nplayed); //return 0.0;
-    }
-    const char *getName() const { return name; }/// access player's name
-    
-    // the error-detecting classes
-    class NoFile { //An instance created only if trying to work with non-existing file
-        string s;
-        public:
-            NoFile() { s = "The input file does not exist or cannot be opened.\n"; };
-            string str() const { return s; }
-    };
-    class NoRead { //An instance created only if reading from a file fails
-        string s;
-        public:
-            NoRead() { s = "Cannot read the file.\n"; }
-            string str() const { return s; }
-    };
-    class DivZero {
-        string s;
-        public:
-            DivZero(short denom) { s = "Cannot divide by "; s+=denom; }
-            string str() const { return s; }
-    };
-    virtual ~Profile() { } // Destructor
-    /// friend function - file stream operator
-    friend fstream &operator<<(fstream&, Player&);
-//    friend ostream &operator<< (ostream&, Profile&);
+        Profile(); /// Default constructor
+        Profile(const char *); /// Constructor accepting a name as an argument
+        Profile(Player &); /// copy constructor
+        void operator=(Player &); /// overloaded assignment operator
+        void setName(const char *);/// set player's name
+        void addNpld() { ++Nplayed; }
+        short played() const { return Nplayed; }/// access # of games played
+        short won() const { return Nwon; } /// access # of games won
+        float getRate();
+        const char *getName() const { return name; }/// access player's name
+        
+        /// Error-detecting classes
+        /// class Err { public: virtual string str() = 0; }
+        class NoFile { //An instance created only if trying to work with non-existing file
+            private: 
+                string s;
+            public:
+                NoFile() { 
+                    s = "The input file does not exist or cannot be opened.\n"; 
+                }
+                string str() const { return s; }
+        };
+        class NoRead { //An instance created only if reading from a file fails
+            private: 
+                string s;    
+            public:
+                NoRead() { 
+                    s = "Cannot read the file.\n"; 
+                }
+                string str() const { return s; }
+        };
+        class DivZero {
+            private: 
+                string s;
+            public:
+                DivZero(short denom) { 
+                    s = "Cannot divide by "; 
+                    s+=denom; 
+                }
+                string str() const { return s; }
+        };
+        virtual ~Profile() { } // Destructor
+        /// friend function - file stream operator
+        friend fstream &operator<<(fstream&, Player&);
 };
 #endif /* PROFILE_H */

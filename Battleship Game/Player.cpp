@@ -1,5 +1,5 @@
-/* 
- * File:   Player.h
+/*
+ * File:   Player.cpp
  * Author: Mariia Gregory
  *
  * Created on May 12, 2018, 9:44 PM
@@ -12,11 +12,11 @@
 #include <utility> /*! pair<T1, T2>, x,y coordinates on a grid. Used in fire() */
 using namespace std;
 
-// Function prototype - used in fire()
+/// Function prototype - used in fire()
 pair<short,short> takeGuess(short);//, Player&, Player&); // defined in main.cpp
 
 /*! Check if all ships are sunk. If yes, set "won" flag to true.*/
-Player::Player(const char *name) : Profile(name) {   
+Player::Player(const char *name) : Profile(name) {   //cout<<"Creating a player\n";
     board = new Board();
     guesses = 0;
 }
@@ -45,8 +45,11 @@ bool Player::fire(Player &rival, pair<short,short> &guess) {
                   cout<<"\tAll ships are sunk, so ----- GAME OVER!\n";
                   Nwon++; // update # of games won
                   return true;
-              } else return false;
-          } else {
+              } 
+              else 
+                  return false;
+          } 
+          else {
               rival.showBrd();
               cout<<"\tThe ship is hit!\n"; /*! if not sunk, then at least hit*/
               return false;
@@ -57,3 +60,14 @@ bool Player::fire(Player &rival, pair<short,short> &guess) {
     rival.showBrd(); cout<<"\tMissed!\n"; /*! if not sunk, then at least hit*/
     return false;
 }
+/// Set a new board for a player. Called before each new round
+void Player::reset() { 
+    delete board;
+    board = new Board();
+    guesses = 0;
+}
+/// Destructor
+Player::~Player() {
+    delete board;
+    board = NULL; 
+} 

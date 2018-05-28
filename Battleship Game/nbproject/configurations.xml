@@ -9,7 +9,8 @@
       <itemPath>Profile.h</itemPath>
       <itemPath>Round.h</itemPath>
       <itemPath>Ship.h</itemPath>
-      <itemPath>Templates.h</itemPath>
+      <itemPath>Streams.h</itemPath>
+      <itemPath>Template.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -21,6 +22,7 @@
       <itemPath>Board.cpp</itemPath>
       <itemPath>Player.cpp</itemPath>
       <itemPath>Profile.cpp</itemPath>
+      <itemPath>Round.cpp</itemPath>
       <itemPath>Ship.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
     </logicalFolder>
@@ -58,13 +60,17 @@
       </item>
       <item path="Profile.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Round.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="Round.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Ship.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Ship.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="Templates.h" ex="false" tool="3" flavor2="0">
+      <item path="Streams.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Template.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -101,13 +107,17 @@
       </item>
       <item path="Profile.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Round.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="Round.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Ship.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Ship.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="Templates.h" ex="false" tool="3" flavor2="0">
+      <item path="Streams.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Template.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>

@@ -38,6 +38,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/Board.o \
 	${OBJECTDIR}/Player.o \
 	${OBJECTDIR}/Profile.o \
+	${OBJECTDIR}/Round.o \
 	${OBJECTDIR}/Ship.o \
 	${OBJECTDIR}/main.o
 
@@ -80,6 +81,11 @@ ${OBJECTDIR}/Profile.o: Profile.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Profile.o Profile.cpp
+
+${OBJECTDIR}/Round.o: Round.cpp
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Round.o Round.cpp
 
 ${OBJECTDIR}/Ship.o: Ship.cpp
 	${MKDIR} -p ${OBJECTDIR}

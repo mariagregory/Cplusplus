@@ -34,14 +34,11 @@ class Player : public Profile {
         short NShips() { return board->gtNShps(); }
         short NSunk() { return board->gtNSunk(); }
         short NLeft() { return NShips()-NSunk(); }
-        void reset() { 
-            delete board;
-            board = new Board(); 
-            guesses = 0;
-        }
+        void reset();
         // ***********TEST ********************
 //        void reveal(Player &rival) { rival.board->reveal(); } 
         // ***********end of TEST ********************
-        ~Player() {  delete board; board = NULL; } 
+        ~Player(); /// destructor
 };
+
 #endif /* PROFILE_H */

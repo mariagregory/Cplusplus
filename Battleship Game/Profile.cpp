@@ -17,11 +17,13 @@ Profile::Profile() {
     setName("Jane Doe");///Tried -- string n = "Jane Doe"; setName(n.c_str()); -- but it didn't work -- segmentation fault
     Nplayed = 0; 
     Nwon = 0;
+    rate = -1.0;
 }
 Profile::Profile(const char *name) { // constructor --- assign a default name somehow....
     setName(name);
     Nplayed = 0; 
     Nwon = 0;
+    rate = -1.0;
 }
 Profile::Profile(Player &p) {
     *this = p;
@@ -30,6 +32,9 @@ void Profile::operator=(Player &p) {
     setName(p.name);
     Nplayed = p.Nplayed;
     Nwon = p.Nwon;
+    this->rate = p.getRate();
+    //rate = rate;//this is what you had, and it doesn't do anything
+    //rate = rightHandSideThing.rate; //this is more like what you want
 }
 void Profile::setName(const char *name) {
     strncpy(this->name, name, nameSz); //strcpy(this->name, name);
@@ -41,5 +46,5 @@ float Profile::getRate() {
         return rate; 
     } 
     else 
-        throw DivZero(Nplayed); //return 0.0;
+        return -1.0; ///throw DivZero(Nplayed);
 }

@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
         
         cout<<"\nDo you want to play again?\nYes (Y) or No (any other key): ";
         cin>>again; //do { cin.get(again); }while(isspace(again)); /// skip accidental spaces until some char is entered
-//        cin.ignore(); /*! skip the remaining char(s), if any, so nothing is left in a buffer if the game continues*/
+        while(!again) { cin>>again; }/*! skip the remaining char(s), if any, so nothing is left in a buffer if the game continues*/
         again = toupper(again);
         if(again=='Y') { 
             players[0]->reset(); 
@@ -220,15 +220,20 @@ void readProf(fstream &file) {
         cout<<"| "<<right<<setw(5)<<prof.won();
         cout<<setw(7)<<"| "<<setw(6);
         /*! calculate % of success as games won/played*/
-        if(prof.played()) { /*! in case the function is called before any game is played...*/
+        if(prof.played()>1) {
             cout<<fixed<<setprecision(0)<<prof.getRate()<<"%"<<endl;
-        } 
-        else 
-            cout<<"--\n";  
-    } 
+        }
+        else if(prof.played()==1) { /// When only 1 round was played, getRate() does not work, for some reason
+            cout<<fixed<<setprecision(0)<<prof.won() * 100 / prof.played()<<"%"<<endl;
+        }
+        else {
+            cout<<"--\n"; /*! in case the function is called before any game is played...*/
+        }
+    }
+        
     cout<<"________________________________________________"<<endl;
     cout<<"Total games played: "<<prof.played()<<endl;
-} /// When only 1 round was played, the rate is not calculated, for some reason
+} 
 
 /// Take and validate user's input for a name
 string takeName(short i) {

@@ -20,15 +20,12 @@ Board::Board() { /// Constructor
     short shipL = 3;//1;//; /// short shipL = rand()%3+2; /// & no Nships yet
     Nships = 3;//1;//3; // 1 for test// size*size / (3*(2+shipL));
     Nsunk = 0;
-    ships = alloc<Ship*>(Nships);//new Ship*[Nships]; /// generate as many ship objects
-//    cout<<"..........TEST........(Setting ship coordinates)...\n";
+    ships = alloc<Ship*>(Nships);//new Ship*[Nships]; /// generate as many ship objects // cout<<"......TEST......(Setting ship coordinates)...\n";
     for(short i=0; i<Nships; i++) { // shipL = rand()%3+2; /// set a random ship length, from 2 to 4
         ships[i] = new Ship(shipL);
         setCrds(ships[i], i); // sending a pointer and a ship index
-    }
-//    cout<<"..........TEST........(Allocating grid)...\n";
-    grid = alloc<char*>(size);//new char*[size]; /*!    allocate memory for grid*/
-//    cout<<"..........TEST........(Setting grid)...\n";
+    } 
+    grid = alloc<char*>(size);//new char*[size]; /*!    allocate memory for grid*/      // cout<<"......TEST.....(Allocating grid)...\n";
     for(short i=0; i<size; i++) {
         grid[i] = alloc<char>(size);//new char[size]; /*! will contain marks for ships, hit or miss*/
         for(short j=0; j<size; j++) {
@@ -156,36 +153,48 @@ Ship *Board::getShip(short index) const {
         return 0;
     }
 }
-/*! Display the board of the player, with ships marks (hit or miss, unharmed ships hidden)*/
-void Board::display() {
+/* Represent the grid as a string */
+string Board::str() const {
+    string result;
     char col, row;
-    cout<<setw(4)<<""; /// skip 4 spaces
+    result = "    ";/// skip 4 spaces
     for(int i=0; i<size; i++) {
         col='A'+i; /// determine a column #
-        cout<<"  "<<col<<" "; /// display the column header as a letter
+        result+="  ";
+        result+=col;
+        result+=" "; /// display the column header as a letter
     } 
-    cout<<endl;
+    result+="\n";
     for(int i=0; i<size; i++) {
-        cout<<setw(4)<<""; /// skip 4 spaces
+        result+="    "; /// skip 4 spaces
         for(int j=0; j<size; j++) {
-            cout<<"+---";
+            result+="+---";
         } 
-        cout<<"+\n";
+        result+="+\n";
         row='0'+i; /// determine a row #
-        cout<<" "<<row<<"  "; /// display the row header as a letter
+        result+=" ";
+        result+=row;
+        result+="  "; /// display the row header as a letter
         for(int j=0; j<size; j++) {
-            cout<<"| "<<grid[i][j]<<" "; /*! either ' ', or 'X', or '-'*/
+            result+="| ";
+            result+=grid[i][j];
+            result+=" "; /*! either ' ', or 'X', or '-'*/
         }
-        cout<<"|\n";
+        result+="|\n";
     }
-    cout<<setw(4)<<"";
+    result+="    ";/// skip 4 spaces
     for(int j=0; j<size; j++) {
-        cout<<"+---"; 
+        result+="+---";
     } 
-    cout<<"+\n";
+    result+="+\n";
+    return result;
+}
+/*! Display the board of the player, with ships marks (hit or miss, unharmed ships hidden)*/
+void Board::display() {
+    cout<<str();
 }
 /*!    ************* TEST for ship allocations ***********/
-void Board::reveal() { // called by typing '0' as a guess in Player::fire() - takeGuess()
+void Board::reveal() { // called by typing '0' as a guess in Player::fire() - takeGuess() - in TESTING mode
     for(short i=0; i<Nships; i++) {
         short x = ships[i]->getX(), y = ships[i]->getY(), len = ships[i]->getLen();
         if(ships[i]->isVert()) {

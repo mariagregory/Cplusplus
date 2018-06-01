@@ -40,5 +40,4 @@ class Player : public Profile {
         // ***********end of TEST ********************
         ~Player(); /// destructor
 };
-
 #endif /* PROFILE_H */

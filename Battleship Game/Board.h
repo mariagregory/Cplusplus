@@ -9,6 +9,7 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+#include <string>
 #include "Ship.h"
 using namespace std;
 
@@ -35,8 +36,9 @@ class Board { // Board class definition
         bool isEmpty(short x, short y) { 
             return (grid[y][x]!='X') && (grid[y][x]!='S') && (grid[y][x]!='-'); // return isspace(grid[y][x]); 
         }
+        string str() const;
         void display();
-        void reveal(); /*! ************* TEST for ship allocations ***********/
+        void reveal(); /*! ****** TEST for ship allocations ***** Called in testing mode ****/ 
         ~Board();
 };
 #endif /* BOARD_H */

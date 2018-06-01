@@ -52,15 +52,14 @@ int main(int argc, char** argv) {
            players[i] = new Player(name.c_str());
        /// When players are created, their boards are set and ships are allocated
        }
-       catch(Ship::NegLen) {
-            cout << "Error: Cannot create a ship with <=0 length.\n";
+       catch(Ship::NegLen n) {
+            cout << n.str();
             return -1;
         }
     }
     cout<<"\n       ~  ~  ~  Welcome to  ~  ~ \n~ ~ ~ ~     S E A  ~ ~  B A T T L E    ~ ~ ~ ~\n\n";
     cout<<endl<<players[0]->getName()<<" vs. "<<players[1]->getName()<<"!"<<endl;
     Round *round;
-    short rndN = 0;
     short turn = 0; // if turn==0, 1st player's turn; if turn==1, it's 2nd player's turn
     char again;
     
@@ -68,7 +67,7 @@ int main(int argc, char** argv) {
         round = new Round;// ++Nround;
         players[0]->addNpld(); 
         players[1]->addNpld(); /*! increment # of rounds player by each player*/
-        cout<<"\nRound "<<round->getNum()<<"!\n";
+        cout<<"\nROUND "<<round->getNum()<<"!\n";
         cout<<players[0]->NShips()<<" ships are created for each player.\n";
         pair<short,short> guess; /*! an x,y coordinate on a grid, where ships are located*/
         bool gamOver = false; /*! whether there is a winner; if true, then the game is over*/
@@ -109,7 +108,7 @@ int main(int argc, char** argv) {
         delete round;
         
         cout<<"\nDo you want to play again?\nYes (Y) or No (any other key): ";
-        do { cin.get(again); }while(isspace(again)); /// skip accidental spaces until some char is entered
+        cin>>again; //do { cin.get(again); }while(isspace(again)); /// skip accidental spaces until some char is entered
 //        cin.ignore(); /*! skip the remaining char(s), if any, so nothing is left in a buffer if the game continues*/
         again = toupper(again);
         if(again=='Y') { 
@@ -155,7 +154,7 @@ int main(int argc, char** argv) {
 }
 
 /*! Takes x,y coordinates as a player's guess*/
-pair<short,short> takeGuess(short size) {//, Player &p1, Player &p2) { 
+pair<short,short> takeGuess(short size) {//, Player &p1, Player &p2) { /// TESTING mode: uncomment parameters 2 and 3 (two Player instances) 
 //With 2 players as arguments, you can reveal all ships on the enemy's board by typing 0 as a guess
     pair<char,char> guess;
     string test;
@@ -165,8 +164,8 @@ pair<short,short> takeGuess(short size) {//, Player &p1, Player &p2) {
         cout<<static_cast<char>('A'+size-1)<<size-1<<": ";
         getline(cin,test);
         // ************** TESTS
-        //if(test=="x") p1.reset();
-        //if(test=="0") p1.reveal(p2);
+        //if(test=="x") p1.reset();     // in TESTING mode
+        //if(test=="0") p1.reveal(p2);  // in TESTING mode
         // ***************** end of TESTS
         if(test.length()!=2) {
             cout<<"\tError! No 2 chars were entered\n";

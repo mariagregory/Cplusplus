@@ -10,7 +10,6 @@
 #define SHIP_H
 
 #include "Board.h"
-//#include <utility> /*! pair<T1, T2>, x,y coordinates on a grid*/
 using namespace std;
 
 class Ship { /// Class representing a single ship
@@ -23,7 +22,6 @@ class Ship { /// Class representing a single ship
     public:
         Ship(short); // Constructor accepts a length as an argument 
         void setLen(short);
-        class NegLen {}; /// Error-detecting class. An instance created when <=0 length is provided as an argument
         void setX(short x) { this->x = x; };
         void setY(short y) { this->y = y; };
         short getLen() const { return length; }
@@ -32,7 +30,17 @@ class Ship { /// Class representing a single ship
         bool isVert() const { return vert; }
         bool isHit(short,short) const;
         bool isSunk() const;
+        class NegLen {
+            private:
+                string s;
+            public: 
+                NegLen() {
+                    s = "Error: Cannot create a ship with <=0 length.\n";
+                }
+                string str() const {
+                    return s;
+                }
+        }; /// Error-detecting class. An instance created when <=0 length is provided as an argument    
         ~Ship();
 };
-
 #endif /* SHIP_H */

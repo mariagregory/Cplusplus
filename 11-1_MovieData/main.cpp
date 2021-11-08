@@ -85,31 +85,27 @@ void shwInfo(Movie *film) {
 short validNo(short min, short max) { //short digits, 
     char *input = new char[100];
     short result;
-//    bool valid=false;
-    
+//    bool valid{true};
+	
 //    do{ 
         cin.getline(input, 100);
-        for(int i=0; i<strlen(input); i++) {
+	size_t len = strlen(input);
+        for(size_t i=0; i<len; i++) {
             if(!isdigit(input[i])) {
                 cout<<"Invalid input!\nNumbers only please: ";
 				destroy(input);
                 validNo(min, max);
-//                valid=false;
-//                break;
             }
-//            if(i==strlen(input)-1) valid=true; // the last iteration. If passed isdigit test, then it's a number
         }
-//        if(valid && (atoi(input)<min || atoi(input)>max)) {
+
             if(atoi(input)<min || atoi(input)>max) {
             cout<<"Invalid input!\nPlease enter the number in a range "<<min<<" - "<<max<<": ";
-            destroy(input); //input = nullptr;
+            destroy(input);
             validNo(min, max);
-//            valid=false;
         }
 //    } while(!valid);
-//    valid=true;
 //    cin.clear(); cin.ignore(100, '\n'); // because user may need to enter info for other movies using getline()
-    result=static_cast<short>(atoi(input));
+    result = static_cast<short>(atoi(input));
     return result;
 }
 

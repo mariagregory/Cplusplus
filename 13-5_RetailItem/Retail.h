@@ -1,6 +1,6 @@
 /* 
  * File:   Retail.h
- * Author: admin
+ * Author: Maria Gregory
  *
  * Created on March 28, 2018, 7:22 PM
  */

@@ -34,7 +34,7 @@ class Board { // Board class definition
         void mrkMiss(short, short); /// marks the spot as missed, with '-'
         void mrkSunk(const Ship*); /// marks all ship spots with 'S' and increments Nsunk
         bool isEmpty(short x, short y) { 
-            return (grid[y][x]!='X') && (grid[y][x]!='S') && (grid[y][x]!='-'); // return isspace(grid[y][x]); 
+            return grid[y][x]==' '; 
         }
         string str() const;
         void display();

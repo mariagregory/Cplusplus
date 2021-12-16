@@ -9,7 +9,7 @@
 #ifndef SHIP_H
 #define SHIP_H
 
-#include "Board.h"
+#include <string>
 using namespace std;
 
 class Ship { /// Class representing a single ship
